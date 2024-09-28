@@ -1,6 +1,6 @@
 from typing import Self
-from table import Table 
-from file_utils import *
+from .table import Table 
+from .file_utils import *
 import random
 import pandas as pd
 
@@ -29,8 +29,7 @@ class Openspace:
                 avoiding_loneliness
                 is_enough_space
                 implemnt_decision
-    
-    
+                fix_size_loop
     
     """
     def __init__(self,number_of_tables: int = 6, table_capacity: int = 4) -> Self:
@@ -48,7 +47,6 @@ class Openspace:
         self._flag = False
         
         
-
     def __str__(self) -> str:
         """
             Function that print reade
@@ -62,6 +60,7 @@ class Openspace:
             for index,seat in enumerate(tabel.seats, start=1):
                 final_string= final_string + f'\t\tChair #{index} {str(seat)}\n'
         return final_string
+    
     
     def has_space(self) -> bool:
         """
@@ -97,7 +96,6 @@ class Openspace:
             table.add_seat()
             
 
-    
     def add_both(self) -> None:
         """
             Function is adding one tabel, and one seat to each tabel in Openspace
@@ -106,7 +104,6 @@ class Openspace:
         """
         self.add_table()
         self.add_seat_to_all_tables()
-
 
 
     def assing_occupants(self,name) -> None:
@@ -135,7 +132,6 @@ class Openspace:
                 continue
     
 
-
     def avoiding_loneliness(self) -> None:
         """
         Function that does not allow a table with a single employee.
@@ -161,8 +157,7 @@ class Openspace:
                         [tabel.assign_seat(self.names.pop()) for i in range(len(self.names)) ]
                         self.capacity-=1
 
-    
-    
+
     def is_enough_space(self,names : list) -> bool:
         """
             Function that chek if in openspace enough space for all employes
@@ -174,6 +169,7 @@ class Openspace:
         else:
             return True
     
+
     def implemnt_decision(self,flag : str,names : list ) -> None:
         """
             Function implements decision according to flag returned by file_utils.to_many_quest 
@@ -190,7 +186,25 @@ class Openspace:
                 self.names = names
             case 'B':
                 self.add_both()
-                    
+
+
+    def fix_size_loop(self, names:list)->tuple:
+                """
+                    Function that iniciate interaction with user, 
+                        about how to fix openspace capasity problem.
+                    :param: names list is containing names of сolleagues in string.
+                    :return: tuple (int,int) = (self capacity of the Openspace, Quantety of colleagues).
+                """
+                flag = to_many_quest(names,self.number_of_tabels,self.table_capacity,self.capacity)
+                self.implemnt_decision(flag,names)
+                if_capasity = (self.capacity >= len(names)) 
+                if if_capasity:
+                    for name in names:
+                        self.assing_occupants(name)
+                    self.avoiding_loneliness()
+                    return (self.capacity,len(names))
+                else:
+                    self.fix_size_loop(names)                    
 
 
     def organize(self,names : list) -> None:
@@ -205,20 +219,8 @@ class Openspace:
             self.avoiding_loneliness()
 
         else:
-
-            flag = to_many_quest(names,self.number_of_tabels,self.table_capacity)
-            self.implemnt_decision(flag,names)
-            if self.capacity > len(names):
-                for name in names:
-                    self.assing_occupants(name)
-                self.avoiding_loneliness()
-                    
-            
-            
-        
-    
-        
-                    
+            print("There is still not enough space")
+            self.fix_size_loop(names)
                 
     def dysplay(self) -> None:
         """
@@ -239,10 +241,10 @@ class Openspace:
             :param: string that represent files name.
             :return: Nothing.
         """
-        repartition_dict = {f'{tabel}': [f'Seat #{index } {str(seat)}' for index,seat in enumerate(tabel.seats,start=1)] 
-                            for tabel in self.tables
+        repartition_dict = {f'Tabel #{index_t}': [f'Seat #{index } {str(seat)}' for index,seat in enumerate(tabel.seats,start=1)] 
+                            for index_t,tabel in enumerate(self.tables,start=1)
                             }
-    
+        
         df = pd.DataFrame(repartition_dict.items(), columns = ['tabels','seats'],index = [index for index,val in enumerate(repartition_dict,start=1)])
         while True: 
             answ = input('If you wanna save file in csv press "C", if in xlsx press X. C/X')

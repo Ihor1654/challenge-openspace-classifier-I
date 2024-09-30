@@ -1,7 +1,8 @@
 from utils.openspace import Openspace
 import pandas as pd
 from os import path as p
-#/Users/igorafanasIev/Desktop/becode_projects/challenge-openspace-classifier/challenge-openspace-classifier/new_colleagues.csv
+import tkinter as tk
+from tkinter.filedialog import askopenfile
 
 def read_from_csv() -> list:
     """
@@ -9,17 +10,14 @@ def read_from_csv() -> list:
         :return:colleagueslist list of colleagues.
     
     """
-    colleagueslist = []
-    while True:
-        path = input('Enter file path')
-        if p.exists(path):
-            csvColleagues = pd.read_csv(path, header=None)
-            for row in csvColleagues.itertuples():
-                colleagueslist.append(row[1])
-            break
-        else:
-            print('Incorrect path,try again')
+    root = tk.Tk()
+    root.withdraw()
 
+    colleagueslist = []
+    path = askopenfile(mode ='r', filetypes =[('CSV Files', '*.csv')])
+    csvColleagues = pd.read_csv(path, header=None)
+    for row in csvColleagues.itertuples():
+        colleagueslist.append(row[1])
     return colleagueslist
 
 def ask_filename() -> None:
@@ -72,5 +70,5 @@ def ask_about_size() -> Openspace:
 
 classroom = ask_about_size()
 classroom.organize(read_from_csv())
-classroom.dysplay()
+#classroom.dysplay()
 ask_filename()

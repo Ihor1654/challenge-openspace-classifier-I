@@ -70,8 +70,7 @@ class Openspace:
         for tabel in self.tables:
             if tabel.has_free_spot():
                 return True
-        else:
-            return False
+        return False
         
     
     def add_table(self) -> None:
@@ -144,19 +143,18 @@ class Openspace:
                     if not seat.free:
                         self.names.append(seat.occupant)
                         seat.remove_occupant()
-            else:
+            elif not self._flag:
                 try:
                     tabel.assign_seat(self.names.pop())
                     self.capacity-=1
                 except:
                     continue
         else:
-            while len(self.names) != 0:
+            while len(self.names) != 0 and not self._flag:
                 for tabel in self.tables:
                     if tabel.capacity == self.table_capacity:
                         [tabel.assign_seat(self.names.pop()) for i in range(len(self.names)) ]
                         self.capacity-=1
-
 
     def is_enough_space(self,names : list) -> bool:
         """
@@ -169,7 +167,6 @@ class Openspace:
         else:
             return True
     
-
     def implemnt_decision(self,flag : str,names : list ) -> None:
         """
             Function implements decision according to flag returned by file_utils.to_many_quest 
@@ -183,10 +180,9 @@ class Openspace:
                 self.add_seat_to_all_tables()
             case 'N':
                 self._flag = True
-                self.names = names
+                self.names = names[self.capacity:]
             case 'B':
                 self.add_both()
-
 
     def fix_size_loop(self, names:list)->tuple:
                 """
@@ -203,9 +199,13 @@ class Openspace:
                         self.assing_occupants(name)
                     self.avoiding_loneliness()
                     return (self.capacity,len(names))
+                elif self._flag:
+                    for name in names[:self.capacity]:
+                        self.assing_occupants(name)
+                    self.avoiding_loneliness()
+                    return (self.capacity,len(names),self.names)
                 else:
                     self.fix_size_loop(names)                    
-
 
     def organize(self,names : list) -> None:
         """
@@ -217,10 +217,65 @@ class Openspace:
             for name in names:
                 self.assing_occupants(name)
             self.avoiding_loneliness()
-
+        elif self._flag:
+            for name in names[:self.capacity]:
+                self.assing_occupants(name)
+            self.avoiding_loneliness()
         else:
-            print("There is still not enough space")
             self.fix_size_loop(names)
+            if not self._flag:
+                print("There is still not enough space")
+            else:
+                return self.names
+            
+    def adding_latecomers(self) -> None:
+        """
+        Function that adds people who are not in the file to the tables.
+        :return: None
+        """
+        def internal_seat_assign()-> None:
+            'Internal function for seat assignment'
+            seat_assigned = False
+            for tabel in self.tables:
+                if seat_assigned:
+                     break
+                if tabel.has_free_spot():
+                    for seat in tabel.seats:
+                        if seat.free:
+                            seat.set_occupant(name_input)
+                            seat_assigned = True
+                            break
+            
+        while True:
+            adding_answ = input('Do you want to add somebody? Y/N')
+            match adding_answ:
+                case 'Y':
+                    while True:
+                        name_input = input('Write the names. if all names were added write E')
+                        match name_input:
+                            case 'E':
+                                break
+                            case _:
+                                if re.fullmatch('^[A-Z]{1}[a-z]*$',name_input):
+                                    if self._flag:
+                                        print(1)
+                                        self.names.append(name_input)
+                                    elif self.has_space():
+                                       internal_seat_assign()
+                                    else:    
+                                        print(3)
+                                        names = [name_input]
+                                        flag = to_many_quest(names,self.number_of_tabels,self.table_capacity,self.capacity)
+                                        self.implemnt_decision(flag,names)
+                                        internal_seat_assign()
+                                    
+                                else:
+                                    print("It isn't name or E. Please try again ")
+                    break
+                case 'N':
+                    break
+                case _:
+                    print('Incorrect answer. Try again.')
                 
     def dysplay(self) -> None:
         """
@@ -234,17 +289,18 @@ class Openspace:
             for index,seat in enumerate(tabel.seats, start=1):
                 print(f'Chair #{index} {str(seat)}')
 
-
     def store(self,filename : str) -> None:
         """
             Function store the repartition in an excel file
             :param: string that represent files name.
             :return: Nothing.
         """
+        self.adding_latecomers()
         repartition_dict = {f'Tabel #{index_t}': [f'Seat #{index } {str(seat)}' for index,seat in enumerate(tabel.seats,start=1)] 
                             for index_t,tabel in enumerate(self.tables,start=1)
                             }
-        
+        if self._flag:
+            repartition_dict['Peopel without seats:'] = self.names
         df = pd.DataFrame(repartition_dict.items(), columns = ['tabels','seats'],index = [index for index,val in enumerate(repartition_dict,start=1)])
         while True: 
             answ = input('If you wanna save file in csv press "C", if in xlsx press X. C/X')

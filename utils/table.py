@@ -1,3 +1,5 @@
+import random
+
 class Seat:
     """Class representing one seat"""
 
@@ -20,6 +22,9 @@ class Seat:
         self.occupant = ""
         self.free = True
 
+    def set_leader(self) -> None:
+        self.occupant += " (Table Leader)"
+
     def __str__(self) -> str:
         """A string representation of the seat's status"""
         if self.free:
@@ -41,10 +46,10 @@ class Table:
 
     def has_free_spot(self) -> bool:
         """Function that will check if there are any free spots"""
-        if self.capacity == 0:
-            return False
-        else:
-            return True
+        for seat in self.seats:
+            if seat.free:
+                return True
+        return False
         
     def add_seat(self) -> None:
         """
@@ -68,6 +73,12 @@ class Table:
             :return: int capacity of the tabel
         """
         return self.capacity
+    
+    def select_leader(self) -> None:
+        for table_leader in self.seats:
+            if not table_leader.free:
+                table_leader.set_leader()
+                break
 
     def __str__(self) -> str:
         """A string representation of the table's status"""

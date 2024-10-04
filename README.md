@@ -40,32 +40,26 @@ This script runs everyday to re-assign everybody to a new seat.
     python main.py
     ```
 
-3. The script reads your input file, and organizes your colleagues (up to 35) to random seat assignments. The resulting seating plan is displayed in your console and also saved to an "output.xlsx" file in your root directory.
+3. The script provides options to set up the open space capacity or runs with the default setting (6 tables with 4 seats each). It asks you to choose a .csv input file from your local machine and organizes your colleagues into random seat assignments. The resulting seating plan is displayed in your console and also saved to a file with a name you enter and a format you choose (.xlsx or .csv) in your root directory.
 
 ```python
-input_filepath = "new_colleagues.csv"
-output_filename = "output.xlsx"
-
-# Creates a list that contains all the colleagues names
-names = pd.read_csv(input_filepath, header=None)
-
-# create an OpenSpace()
-open_space = OpenSpace()
-
-# assign a colleague randomly to a table
-open_space.organize(names)
-
-# save the seat assigments to a new file
-open_space.store(output_filename)
-
-# display assignments in the terminal
-open_space.display()
+classroom = ask_about_size()
+classroom.organize(read_from_csv())
+classroom.dysplay()
+ask_filename()
 ```
-4. If there aren't enough seats available, it will ask you to input 'S', 'T', 'N' or 'B':
+4. The script also provides the ability to handle a lack of seats in the open space. It will ask you to input 'S', 'T', 'N' or 'B':
     'T': add one table, 
     'S': add one seat for each table, 
     'B': add one table or add one seat to each table, 
     'N': do nothing
+
+5. And the option to add extra people, not included in the .csv, before saving the resulting seat map to the file.
+   "Do you want to add somebody? Y/N"
+   'Y' : answer yes
+   'N' : answer no
+   'Write the names. if all names were added write E'
+   'E' : stop adding the names
 
 ## ⏱️ Timeline
 

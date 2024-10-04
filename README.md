@@ -49,17 +49,17 @@ classroom.dysplay()
 ask_filename()
 ```
 4. The script also provides the ability to handle a lack of seats in the open space. It will ask you to input 'S', 'T', 'N' or 'B':
-    'T': add one table, 
-    'S': add one seat for each table, 
-    'B': add one table or add one seat to each table, 
-    'N': do nothing
+* 'T': add one table, 
+* 'S': add one seat for each table, 
+* 'B': add one table or add one seat to each table, 
+* 'N': do nothing
 
 5. And the option to add extra people, not included in the .csv, before saving the resulting seat map to the file.
-   "Do you want to add somebody? Y/N"
-   'Y' : answer yes
-   'N' : answer no
-   'Write the names. if all names were added write E'
-   'E' : stop adding the names
+* "Do you want to add somebody? Y/N"
+    * 'Y' : answer yes
+    * 'N' : answer no
+* 'Write the names. if all names were added write E'
+    * 'E' : stop adding the names         
 
 ## ⏱️ Timeline
 
